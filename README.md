@@ -1,8 +1,8 @@
 # MMM-Lyrion2
 testing and optimizing
 
-NEW* COver support
-NEW* no Axios (additional package installed trough npm) needed anymore
+NEW* Cover support  
+NEW* no Axios (additional package installed trough npm) needed anymore  
 
 ## Installation
 
@@ -19,7 +19,7 @@ To enable the module, add it to the config.js file in your MagicMirror setup:
 
 ```bash
 {
-    module: "MMM-Lyrion",
+    module: "MMM-Lyrion2",
     disabled: false,
     position: "bottom_right",                     // Adjust as needed
     config: {
