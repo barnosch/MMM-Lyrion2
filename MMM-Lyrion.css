@@ -1,0 +1,9 @@
+.album-cover {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 10px;
+    float: left;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
