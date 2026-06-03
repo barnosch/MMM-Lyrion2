@@ -25,88 +25,69 @@ module.exports = NodeHelper.create({
         });
 
         if (!response.ok) {
-            throw new Error(
-                `HTTP ${response.status} ${response.statusText}`
-            );
+            throw new Error(`HTTP ${response.status} ${response.statusText}`);
         }
 
         return response.json();
     },
-
+    
     async getPlayersAndTracks(lmsServer) {
-        const url = `${lmsServer}/jsonrpc.js`;
+    const url = `${lmsServer}/jsonrpc.js`;
 
-        try {
-            const playersData = await this.rpcRequest(url, [
-                "-",
-                ["players", 0, 99]
-            ]);
+    try {
+        // 1. Player holen
+        const playersData = await this.rpcRequest(url, [
+            "-",
+            ["players", 0, 99]
+        ]);
 
-            const players =
-                playersData?.result?.players_loop ?? [];
+        const players = playersData?.result?.players_loop || [];
 
-            const playerDetails = await Promise.all(
-                players.map(async (player) => {
-                    try {
-                        const statusData = await this.rpcRequest(url, [
-                            player.playerid,
-                            [
-                                "status",
-                                "-",
-                                1,
-                                "tags:cgABbehldiqtyrSuoKLN"
-                            ]
-                        ]);
+        // 2. Status pro Player (bleibt nötig für track)
+        const playerDetails = await Promise.all(
+            players.map(async (player) => {
+                try {
+                    const statusData = await this.rpcRequest(url, [
+                        player.playerid,
+                        ["status", "-", 1, "tags:cgABbehldiqtyrSuoKLN"]
+                    ]);
 
-                        const status =
-                            statusData?.result ?? {};
+                    const status = statusData?.result || {};
+                    const track = status?.playlist_loop?.[0];
 
-                        const currentTrack =
-                            status?.playlist_loop?.[0];
+                    return {
+                        name: player.name,
+                        id: player.playerid,
+                        isPlaying:
+                            player.isplaying === 1 ||
+                            player.isplaying === true ||
+                            player.isplaying === "1",
+                        track: track
+                            ? {
+                                  title: track.title || "",
+                                  artist: track.artist || "",
+                                  album: track.album || "",
+                                  coverid: track.coverid || track.artwork_track_id || null  //cover holen
+                              }
+                            : null
+                    };
+                } catch (e) {
+                    return {
+                        name: player.name,
+                        id: player.playerid,
+                        isPlaying: false,
+                        track: null
+                    };
+                }
+            })
+        );
 
-                        return {
-                            name: player.name,
-                            id: player.playerid,
-                            isPlaying: player.isplaying === 1,
-                            track: currentTrack
-                                ? {
-                                      title:
-                                          currentTrack.title ?? "",
-                                      artist:
-                                          currentTrack.artist ?? ""
-                                  }
-                                : null
-                        };
-                    } catch (error) {
-                        console.error(
-                            `Failed to load status for player "${player.name}"`,
-                            error
-                        );
-
-                        return {
-                            name: player.name,
-                            id: player.playerid,
-                            isPlaying: player.isplaying === 1,
-                            track: null
-                        };
-                    }
-                })
-            );
-
-            this.sendSocketNotification(
-                "PLAYERS_TRACKS_RESULT",
-                playerDetails
-            );
-        } catch (error) {
-            console.error(
-                "Failed to load players from LMS:",
-                error
-            );
-
-            this.sendSocketNotification(
-                "PLAYERS_TRACKS_RESULT",
-                []
-            );
-        }
+        this.sendSocketNotification("PLAYERS_TRACKS_RESULT", playerDetails);
+    } catch (err) {
+        console.error("LMS error:", err);
+        this.sendSocketNotification("PLAYERS_TRACKS_RESULT", []);
     }
+}
+    
+    
 });
