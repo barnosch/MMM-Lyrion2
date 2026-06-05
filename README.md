@@ -31,7 +31,8 @@ To enable the module, add it to the config.js file in your MagicMirror setup:
 ```
 
 Playing\
-![Playing](https://github.com/user-attachments/assets/017ef5e2-4557-4e63-af2c-e1c139dd2f2a)
+<img width="360" height="217" alt="Lyrion2_cover" src="https://github.com/user-attachments/assets/3003d6ad-ad99-4570-a1bc-d273ebb92493" />
+(synced players in this case)
 
 Stopped\
 ![paused](https://github.com/user-attachments/assets/4d6792fe-e2d9-4fd4-8c8b-c4f87488b4ae)
